@@ -133,22 +133,24 @@ void testCountInversions(){
 }
 
 void naivePartition(int arr[], int n, int m){
-    int res[n],i,c;
+    int res[n],i,c=0;
     for(i=0;i<n;i++){
         if(arr[i]<arr[m]){
-            res[i]=arr[i];
+            res[c]=arr[i];
+            c++;
         }
     }
-    arr[i]=arr[m];
-    c=i+1;
+    res[c]=arr[m];
     for(i=0;i<n;i++){
-        if(arr[i]>=arr[m]){
-            res[i+c]=arr[i];
+        if(arr[i]>=arr[m]&&i!=m){
+            c++;
+            res[c]=arr[i];
         }
     }
     for(i=0;i<n;i++){
-        cout<<arr[i]<<" "<<endl;
+        cout<<res[i]<<" ";
     }
+    cout<<endl;
 }
 
 int main() {
@@ -191,7 +193,7 @@ void testInputArrayAndSizeAndParam(void (*f)(int arr[], int n, int m), const str
         myfile>>m;
         int arr[n];
         for(int i=0;i<n;i++){
-            myfile>>arr[n];
+            myfile>>arr[i];
         }
         f(arr,n,m);
     }
