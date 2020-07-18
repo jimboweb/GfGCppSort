@@ -5,6 +5,15 @@ using namespace std;
 
 void testInputArrayAndSize(void (*f)(int arr[], int n), string  filename);
 void testInputArrayAndSizeAndParam(void (*f)(int arr[], int n, int m), const string & filename);
+int testInputArrayAndSizeAndParamWithIntReturn(int (*f)(int arr[], int n, int m), const string & filename);
+
+void printArr(int a[], int s){
+    for(int i=0;i<s;i++){
+        cout<<a[i]<<" ";
+    }
+    cout<<endl;
+}
+
 
 void printIntersection(int *arr1, int *arr2, int N, int M){
     int i = 0, j = 0, lastPrinted = -1;
@@ -153,11 +162,119 @@ void naivePartition(int arr[], int n, int m){
     cout<<endl;
 }
 
-int main() {
-    //testInputArrayAndSize(countInversions,"countInversionsInput.txt");
-    testInputArrayAndSizeAndParam(naivePartition,"partitionInput.txt");
-    return 0;
+int lomutoPartition(int arr[], int l, int h){
+    int pivot = arr[h];
+    int i=l-1;
+    for(int j=l;j<=h-1;j++){
+        if(arr[j]<pivot){
+            i++;
+            std::swap(arr[i],arr[j]);
+        }
+    }
+    std::swap(arr[i+1],arr[h]);
+    return i+1;
 }
+
+
+int kthSmallest(int arr[], int n, int k){
+    int l=0,r=n-1;
+    while(l<=r){
+        int p = lomutoPartition(arr,l,r);
+        if(p==k-1){
+            return  arr[p];
+        }
+        else if (p>k-1){
+            r = p-1;
+        } else {
+            l = p+1;
+        }
+    }
+    return -1;
+}
+
+void testKthSmallest(){
+    testInputArrayAndSizeAndParamWithIntReturn(kthSmallest,"kthSmallestInput.txt");
+}
+
+void quicksortLomutoRec(int arr[],int l, int h){
+    if(l<h){
+        int p = lomutoPartition(arr,l,h);
+        quicksortLomutoRec(arr,l,p-1);
+        quicksortLomutoRec(arr,p+1,h);
+    }
+}
+
+void quicksortLomuto(int arr[], int s){
+    quicksortLomutoRec(arr,0,s);
+}
+
+void testLomutoPartition(){
+    int arr[] = {40,10,80,30,90,50,70};
+    int l = 0;
+    int h = 6;
+    lomutoPartition(arr,l,h);
+    for(int i=0;i<7;i++)
+        cout<<arr[i]<<" ";
+    cout<<endl;
+}
+
+void testQuicksortLomuto(){
+    int arr[] = {40,10,80,30,90,50,70,30,100,10,25};
+    int s = sizeof(arr)/ sizeof(arr[0]);
+    quicksortLomuto(arr,s-1);
+    for(int i=0;i<s;i++)
+        cout<<arr[i]<<" ";
+    cout<<endl;
+}
+
+int hoarePartition(int arr[], int l, int h){
+    int pivot = arr[l];
+    int i=l-1, j = h + 1;
+    while(true){
+        do{
+            i++;
+        } while (arr[i]<pivot);
+        do{
+            j--;
+        } while (arr[j]>pivot);
+        if(i>=j) return j;
+        swap(arr[i],arr[j]);
+    }
+}
+
+void quickSortHoareRec(int arr[], int l, int h){
+    if(l<h){
+        int p = hoarePartition(arr,l,h);
+        quickSortHoareRec(arr,l,p);
+        quickSortHoareRec(arr,p+1,h);
+    }
+}
+
+void quickSortHoare(int arr[], int s){
+    quickSortHoareRec(arr,0,s-1);
+}
+
+void testHoarePartition(){
+    int arr[] = {40,10,80,30,90,50,70};
+    int l = 0;
+    int h = 6;
+    hoarePartition(arr,l,h);
+    for(int i=0;i<7;i++)
+        cout<<arr[i]<<" ";
+    cout<<endl;
+
+}
+
+void testQuicksortHoare(){
+    int arr[] = {40,10,80,30,90,50,70,30,100,10,25};
+    int s = sizeof(arr)/ sizeof(arr[0]);
+    quickSortHoare(arr,s);
+    for(int i=0;i<s;i++)
+        cout<<arr[i]<<" ";
+    cout<<endl;
+
+}
+
 
 void testInputArrayAndSize(void (*f)(int arr[], int n), string  filename){
     int T,n;
@@ -198,4 +315,31 @@ void testInputArrayAndSizeAndParam(void (*f)(int arr[], int n, int m), const str
         f(arr,n,m);
     }
     myfile.close();
+}
+
+int testInputArrayAndSizeAndParamWithIntReturn(int (*f)(int arr[], int n, int m), const string & filename){
+    int T,n,m;
+    ifstream myfile;
+    myfile.open ("/Users/jimstewart/Git/GfGCppSort/"+filename);
+    if(!myfile.is_open()){
+        cout<<"couldn't ope file"<<endl;
+        return -1;
+    }
+    myfile >> T;
+    while(T--){
+        myfile>>n;
+        myfile>>m;
+        int arr[n];
+        for(int i=0;i<n;i++){
+            myfile>>arr[i];
+        }
+        cout<<f(arr,n,m)<<endl;
+    }
+    myfile.close();
+}
+
+int main() {
+    //testInputArrayAndSize(countInversions,"countInversionsInput.txt");
+    testKthSmallest();
+    return 0;
 }
