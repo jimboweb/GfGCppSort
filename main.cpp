@@ -1,12 +1,13 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
 void testInputArrayAndSize(void (*f)(int arr[], int n), string  filename);
 void testInputArrayAndSizeAndParam(void (*f)(int arr[], int n, int m), const string & filename);
 int testInputArrayAndSizeAndParamWithIntReturn(int (*f)(int arr[], int n, int m), const string & filename);
-
+void testInputArrayAndSizeWithBoolReturn(bool (*f)(int arr[], int n), string filename);
 void printArr(int a[], int s){
     for(int i=0;i<s;i++){
         cout<<a[i]<<" ";
@@ -275,6 +276,96 @@ void testQuicksortHoare(){
 
 }
 
+bool findTripletsNaive(int arr[], int n){
+    for(int i=0;i<n;i++){
+        int first = arr[i];
+        for(int j=0;j<n;j++){
+            if(j==i)
+                continue;
+            int second = arr[j];
+            for(int k=0;k<n;k++){
+                if(k==i||k==j)
+                    continue;
+                int third = arr[k];
+                if(first+second+third==0){
+                    printf("%d + %d + %d = 0",arr[i],arr[j],arr[k]);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/* You are required to complete the function below
+*  arr[]: input array
+*  n: size of array
+*/
+bool findTriplets(int arr[], int n)
+{
+    sort(arr, arr+n);
+    if(arr[0]>0||arr[n-1]<0)
+        return false;
+    for(int i=0;i<n;i++){
+        int l = i+1, r=n-1, x = arr[i];
+        while(l<r){
+            int sum = x + arr[l] + arr[r];
+            if(sum==0)
+                return true;
+            if(sum > 0)
+                r--;
+            else
+                l++;
+        }
+    }
+    return false;
+}
+
+void testFindTriplets(){
+    testInputArrayAndSizeWithBoolReturn(findTriplets,"tripletsinput.txt");
+}
+
+vector<int> threeWayPartition(vector<int> A, int a, int b){
+    int lo=0, mid = 0, hi = A.size()-1,
+    while(mid<hi){
+        if(A[mid]<a){
+            std::swap(A[lo],A[mid]);
+            lo++;
+            mid++;
+        } else if (A[mid]<b){
+            mid++;
+        } else {
+            std::swap(A[mid],A[hi]);
+            hi--;
+        }
+    }
+    return A;
+}
+
+//todo: test this
+void testThreeWayPartition(string  filename){
+    int T,n,m;
+    ifstream myfile;
+    myfile.open ("/Users/jimstewart/Git/GfGCppSort/"+filename);
+    if(!myfile.is_open()){
+        cout<<"couldn't open file"<<endl;
+        return;
+    }
+    myfile >> T;
+    while(T--){
+        myfile>>n;
+        myfile>>m;
+        vector<int> vctr;
+        for(int i=0;i<n;i++){
+            myfile>>vctr[i];
+        }
+        vector<int> rslt = threeWayPartition(vctr,n,m);
+        for(int i:rslt)
+            cout<<i<<" ";
+        cout<<endl;
+    }
+    myfile.close();
+}
 
 void testInputArrayAndSize(void (*f)(int arr[], int n), string  filename){
     int T,n;
@@ -336,10 +427,31 @@ int testInputArrayAndSizeAndParamWithIntReturn(int (*f)(int arr[], int n, int m)
         cout<<f(arr,n,m)<<endl;
     }
     myfile.close();
+    return 0;
+}
+
+void testInputArrayAndSizeWithBoolReturn(bool (*f)(int arr[], int n), string filename){
+    int T,n;
+    ifstream myfile;
+    myfile.open ("/Users/jimstewart/Git/GfGCppSort/"+filename);
+    if(!myfile.is_open()){
+        cout<<"couldn't open file"<<endl;
+    }
+    myfile >> T;
+    while(T--){
+        myfile>>n;
+        int arr[n];
+        for(int i=0;i<n;i++){
+            myfile>>arr[i];
+        }
+        string output = f(arr,n)?"True":"False";
+        cout<<output<<endl;
+    }
+    myfile.close();
 }
 
 int main() {
     //testInputArrayAndSize(countInversions,"countInversionsInput.txt");
-    testKthSmallest();
+    testFindTriplets();
     return 0;
 }
